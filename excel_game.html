@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>試算表函數大挑戰</title>
     <style>
-        /* 保留原有的 CSS */
         :root { --primary-color: #2563eb; --success-color: #16a34a; --error-color: #dc2626; --bg-color: #f3f4f6; --card-bg: #ffffff; }
         body { font-family: "Microsoft JhengHei", "Heiti TC", sans-serif; background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
         .container { background-color: var(--card-bg); border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 600px; padding: 30px; text-align: center; overflow: hidden; }
@@ -28,18 +27,15 @@
         .text-wrong { color: var(--error-color); }
         .explanation-box { margin-top: 10px; font-size: 0.95rem; }
         .code-example { background-color: #1e293b; color: #a5f3fc; padding: 10px; border-radius: 5px; font-family: monospace; margin-top: 8px; display: block; }
-        
-        /* 新增排行榜樣式 */
         .input-group { margin: 20px 0; }
         input[type="text"] { padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; width: 70%; }
         .leaderboard-table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 0.9rem; }
         .leaderboard-table th { background: #f3f4f6; padding: 10px; text-align: center; }
         .leaderboard-table td { border-bottom: 1px solid #eee; padding: 10px; }
-        .rank-1 { color: #eab308; font-weight: bold; } /* Gold */
-        .rank-2 { color: #94a3b8; font-weight: bold; } /* Silver */
-        .rank-3 { color: #b45309; font-weight: bold; } /* Bronze */
+        .rank-1 { color: #eab308; font-weight: bold; }
+        .rank-2 { color: #94a3b8; font-weight: bold; }
+        .rank-3 { color: #b45309; font-weight: bold; }
         .loading { color: #999; font-style: italic; }
-
         @media (max-width: 480px) { .options-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -48,8 +44,8 @@
 <div class="container">
     <div id="start-screen">
         <h1>📊 試算表函數大師</h1>
-        <p>挑戰 Excel/Sheets 函數知識，爭奪龍虎榜榜首！</p>
-        <button class="btn-start" onclick="startGame()">開始挑戰</button>
+        <p>系統將隨機抽出 10 題進行測驗。<br>題目範圍：IF, SUM, COUNT, RANK 等基礎函數。<br>挑戰全對，爭奪龍虎榜榜首！</p>
+        <button class="btn-start" onclick="startGame()">開始挑戰 (10題)</button>
     </div>
 
     <div id="quiz-screen" class="hidden">
@@ -92,143 +88,12 @@
 
 <script>
     // ==========================================
-    // 設定區域：請將下方引號內的網址換成你的 Web App URL
-    // ==========================================
+    // ✅ 你的 Google Apps Script 網址 (已自動填入)
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxkhEO_36rhZEu63NdufMgag1DgWz4eBlyhbbf0kKuD6DqrVb7tlfGeUIZ-_USVj6zs/exec"; 
-    // 例如: "https://script.google.com/macros/s/AKfycbx.../exec"
     // ==========================================
 
+    // 嚴格篩選後的題庫 (符合所有指定基礎函數)
     const questionBank = [
-        { question: "想計算班上「男同學」的數量，應使用什麼函數？", options: ["COUNT", "SUMIF", "COUNTIF", "COUNTA"], answer: 2, explanation: "COUNTIF 用於計算符合特定條件（如 'M'）的個數。", example: "=COUNTIF(Range, \"M\")" },
-        { question: "計算全班分數的「總和」。", options: ["TOTAL", "SUM", "ADD", "COUNT"], answer: 1, explanation: "SUM 是最基本的加總函數。", example: "=SUM(A1:A10)" },
-        { question: "計算全班「平均分」。", options: ["MEAN", "AVERAGE", "MEDIAN", "SUM"], answer: 1, explanation: "AVERAGE 用於計算平均值。", example: "=AVERAGE(A1:A10)" },
-        { question: "找出全班分數「最高」的分數。", options: ["MAX", "LARGE", "TOP", "RANK"], answer: 0, explanation: "MAX 用於找出一組數值的最大值。", example: "=MAX(C1:C30)" },
-        { question: "判斷 A1>=60 顯示「及格」，否則「不及格」。", options: ["CHECK", "IF", "THEN", "WHEN"], answer: 1, explanation: "IF(條件, 成立值, 不成立值)。", example: "=IF(A1>=60,\"Pass\",\"Fail\")" }
-        // 為了測試方便，這裡只列了5題，你應該把上一段代碼所有的題目都貼回來這裡
-    ];
-
-    let currentQuestionIndex = 0;
-    let score = 0;
-    let shuffledQuestions = [];
-
-    const startScreen = document.getElementById('start-screen');
-    const quizScreen = document.getElementById('quiz-screen');
-    const feedbackScreen = document.getElementById('feedback-screen');
-    const endScreen = document.getElementById('end-screen');
-    const submitSection = document.getElementById('submit-section');
-    const leaderboardSection = document.getElementById('leaderboard-section');
-    const leaderboardContent = document.getElementById('leaderboard-content');
-
-    function startGame() {
-        currentQuestionIndex = 0;
-        score = 0;
-        shuffledQuestions = questionBank.sort(() => 0.5 - Math.random()); // 簡單洗牌
-        
-        startScreen.classList.add('hidden');
-        endScreen.classList.add('hidden');
-        quizScreen.classList.remove('hidden');
-        leaderboardSection.classList.add('hidden');
-        submitSection.classList.remove('hidden');
-        
-        showQuestion();
-    }
-
-    function showQuestion() {
-        const qData = shuffledQuestions[currentQuestionIndex];
-        document.getElementById('progress').style.width = `${((currentQuestionIndex)/shuffledQuestions.length)*100}%`;
-        document.getElementById('question').innerText = `Q${currentQuestionIndex + 1}. ${qData.question}`;
-        
-        const container = document.getElementById('options-container');
-        container.innerHTML = '';
-        qData.options.forEach((opt, idx) => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerText = opt;
-            btn.onclick = () => checkAnswer(idx);
-            container.appendChild(btn);
-        });
-    }
-
-    function checkAnswer(idx) {
-        const qData = shuffledQuestions[currentQuestionIndex];
-        const isCorrect = idx === qData.answer;
-        if(isCorrect) score++;
-
-        quizScreen.classList.add('hidden');
-        feedbackScreen.classList.remove('hidden');
-        
-        const feedbackBox = document.getElementById('feedback-box');
-        const resultTitle = document.getElementById('result-title');
-        feedbackBox.className = 'feedback-container ' + (isCorrect ? 'correct' : 'wrong');
-        resultTitle.innerHTML = isCorrect ? '<span class="text-correct">✅ 答對了！</span>' : `<span class="text-wrong">❌ 答錯了！</span> 正確: <strong>${qData.options[qData.answer]}</strong>`;
-        
-        document.getElementById('explanation-text').innerText = qData.explanation;
-        document.getElementById('example-code').innerText = qData.example;
-    }
-
-    function nextQuestion() {
-        currentQuestionIndex++;
-        feedbackScreen.classList.add('hidden');
-        if (currentQuestionIndex < shuffledQuestions.length) {
-            quizScreen.classList.remove('hidden');
-            showQuestion();
-        } else {
-            endGame();
-        }
-    }
-
-    function endGame() {
-        endScreen.classList.remove('hidden');
-        document.getElementById('final-score').innerText = score;
-        document.getElementById('total-questions').innerText = shuffledQuestions.length;
-    }
-
-    // === 龍虎榜邏輯 ===
-    function submitScore() {
-        const name = document.getElementById('player-name').value.trim();
-        if (!name) { alert("請輸入名字！"); return; }
-        if (GAS_URL.includes("YOUR_GOOGLE")) { alert("老師尚未設定後端網址！"); return; }
-
-        const btn = document.querySelector('.btn-submit');
-        btn.disabled = true;
-        btn.innerText = "提交中...";
-
-        // 1. 送出分數 (POST)
-        fetch(GAS_URL, {
-            method: 'POST',
-            mode: 'no-cors', // 重要：避免跨域錯誤
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: name, score: score })
-        }).then(() => {
-            // 2. 讀取排行榜 (GET)
-            loadLeaderboard();
-        }).catch(err => {
-            alert("提交失敗，請檢查網絡");
-            btn.disabled = false;
-        });
-    }
-
-    function loadLeaderboard() {
-        submitSection.classList.add('hidden');
-        leaderboardSection.classList.remove('hidden');
-        
-        fetch(GAS_URL)
-        .then(response => response.json())
-        .then(data => {
-            let html = `<table class="leaderboard-table"><tr><th>排名</th><th>名字</th><th>得分</th></tr>`;
-            data.forEach((row, index) => {
-                let rankClass = index === 0 ? 'rank-1' : (index === 1 ? 'rank-2' : (index === 2 ? 'rank-3' : ''));
-                let rankIcon = index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : index + 1));
-                html += `<tr><td class="${rankClass}">${rankIcon}</td><td class="${rankClass}">${row.name}</td><td>${row.score}</td></tr>`;
-            });
-            html += `</table>`;
-            leaderboardContent.innerHTML = html;
-        })
-        .catch(err => {
-            leaderboardContent.innerText = "無法載入排行榜";
-            console.error(err);
-        });
-    }
-</script>
-</body>
-</html>
+        // --- 基礎加總與平均 (SUM, AVERAGE) ---
+        { question: "計算全班測驗分數的「總和」。", options: ["SUM", "TOTAL", "ADD", "COUNT"], answer: 0, explanation: "SUM 用於計算選定範圍內所有數字的總和。", example: "=SUM(A1:A10)" },
+        { question: "計算全班的「平均分」。", options: ["MEAN", "
