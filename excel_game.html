@@ -96,4 +96,202 @@
     const questionBank = [
         // --- 基礎加總與平均 (SUM, AVERAGE) ---
         { question: "計算全班測驗分數的「總和」。", options: ["SUM", "TOTAL", "ADD", "COUNT"], answer: 0, explanation: "SUM 用於計算選定範圍內所有數字的總和。", example: "=SUM(A1:A10)" },
-        { question: "計算全班的「平均分」。", options: ["MEAN", "
+        { question: "計算全班的「平均分」。", options: ["MEAN", "AVERAGE", "MEDIAN", "SUM"], answer: 1, explanation: "AVERAGE 用於計算算術平均值。", example: "=AVERAGE(A1:A30)" },
+        { question: "如果你想計算 5 個科目的總分，除了用 A1+B1+... 外，最快的方法是？", options: ["ADD", "SUM", "PLUS", "TOTAL"], answer: 1, explanation: "SUM 可以直接選取一個範圍進行加總。", example: "=SUM(A1:E1)" },
+        { question: "計算 1 月到 12 月的平均支出，忽略沒有輸入數字的月份。", options: ["AVERAGE", "SUM", "COUNT", "INT"], answer: 0, explanation: "AVERAGE 函數會自動忽略空白儲存格。", example: "=AVERAGE(B2:B13)" },
+        { question: "想要將三個不連續的儲存格 A1, C1, E1 加總。", options: ["SUM", "ADD", "PLUS", "TOTAL"], answer: 0, explanation: "SUM 可以接受多個不連續的參數，用逗號隔開。", example: "=SUM(A1, C1, E1)" },
+
+        // --- 最大最小與極值 (MAX, MIN, LARGE, SMALL) ---
+        { question: "找出全班分數「最高」的那位同學的分數。", options: ["TOP", "LARGE", "MAX", "RANK"], answer: 2, explanation: "MAX 函數用於回傳最大值。", example: "=MAX(C1:C30)" },
+        { question: "找出這次考試中「最低」的分數。", options: ["MIN", "SMALL", "LOW", "BOTTOM"], answer: 0, explanation: "MIN 函數用於回傳最小值。", example: "=MIN(C1:C30)" },
+        { question: "想找出全班分數「第三高」的分數，MAX 做不到，該用什麼？", options: ["MAX", "LARGE", "RANK", "HIGH"], answer: 1, explanation: "LARGE(範圍, k) 可以找出第 k 個最大值。", example: "=LARGE(A1:A10, 3)" },
+        { question: "想找出全班跑得「第二快」的時間 (數值越小越快，即第二小值)。", options: ["MIN", "SMALL", "LOWER", "BOTTOM"], answer: 1, explanation: "SMALL(範圍, k) 可以找出第 k 個最小值。", example: "=SMALL(A1:A10, 2)" },
+        { question: "要找出公司裡薪水「第五高」的金額。", options: ["RANK", "LARGE", "MAX", "COUNT"], answer: 1, explanation: "使用 LARGE 函數，設定 k=5。", example: "=LARGE(B2:B100, 5)" },
+
+        // --- 計數 (COUNT, COUNTA, COUNTBLANK) ---
+        { question: "計算一列資料中有「多少個數字」（不包含文字）。", options: ["COUNTA", "COUNT", "COUNTBLANK", "SUM"], answer: 1, explanation: "COUNT 只計算「數字」；COUNTA 算所有非空值。", example: "=COUNT(A1:A10)" },
+        { question: "計算出席名單中有填寫資料的總人數（無論填文字或數字）。", options: ["COUNT", "COUNTA", "SUM", "TOTAL"], answer: 1, explanation: "COUNTA (Count All) 計算所有「非空白」儲存格。", example: "=COUNTA(A1:A10)" },
+        { question: "計算資料範圍中有多少個「空格」（缺席/未填）。", options: ["COUNT", "EMPTY", "COUNTBLANK", "NULL"], answer: 2, explanation: "COUNTBLANK 專門計算空白儲存格。", example: "=COUNTBLANK(A1:A10)" },
+        { question: "如果儲存格裡是文字 'Absent'，用 COUNT 函數計算會得到什麼？", options: ["1", "0", "錯誤", "TRUE"], answer: 1, explanation: "COUNT 只算數字，忽略文字。要算文字需用 COUNTA。", example: "=COUNT(\"Absent\") // 結果為 0" },
+        { question: "想知道有多少同學「沒有」提交作業 (該欄位為空白)。", options: ["COUNT", "COUNTA", "COUNTBLANK", "MIN"], answer: 2, explanation: "計算空白格的數量，使用 COUNTBLANK。", example: "=COUNTBLANK(C2:C40)" },
+
+        // --- 條件運算 (SUMIF, COUNTIF) ---
+        { question: "只想加總「及格」（分數 >= 50）同學的分數。", options: ["SUM", "SUMIF", "COUNTIF", "IF"], answer: 1, explanation: "SUMIF 允許你設定一個條件，符合才加總。", example: "=SUMIF(A1:A10, \">=50\")" },
+        { question: "計算班上「男同學」的總人數 (資料為 'M')。", options: ["COUNT", "SUMIF", "COUNTIF", "COUNTA"], answer: 2, explanation: "COUNTIF 計算符合特定條件的個數。", example: "=COUNTIF(B2:B20, \"M\")" },
+        { question: "計算所有「大於 1000 元」的訂單數量。", options: ["COUNT", "COUNTIF", "SUMIF", "LARGE"], answer: 1, explanation: "COUNTIF 可以設定數字條件，例如 \">1000\"。", example: "=COUNTIF(C2:C100, \">1000\")" },
+        { question: "想計算「文具部」的總銷售額 (部門在 A 欄，金額在 B 欄)。", options: ["SUM", "SUMIF", "DSUM", "TOTALIF"], answer: 1, explanation: "SUMIF(範圍, 條件, 加總範圍)。", example: "=SUMIF(A:A, \"文具部\", B:B)" },
+        { question: "計算有多少個學生的成績是「100 分」滿分。", options: ["MAX", "COUNT", "COUNTIF", "RANK"], answer: 2, explanation: "COUNTIF 可以精確計算等於某個數值的個數。", example: "=COUNTIF(D2:D40, 100)" },
+        { question: "計算有多少個成績是「不及格」的 (<60)。", options: ["COUNT", "SUMIF", "COUNTIF", "IF"], answer: 2, explanation: "COUNTIF 用於計算符合條件的儲存格數量。", example: "=COUNTIF(A1:A10, \"<60\")" },
+
+        // --- 排名與統計 (RANK, MEDIAN, MODE) ---
+        { question: "想知道某位同學的分數在全班排第幾名。", options: ["SORT", "ORDER", "RANK", "LEVEL"], answer: 2, explanation: "RANK 傳回某數值在列表中的排名。", example: "=RANK(A2, A$2:A$40)" },
+        { question: "統計學中，想找出這組分數的「中位數」（中間那個數）。", options: ["MIDDLE", "MEDIAN", "AVERAGE", "MODE"], answer: 1, explanation: "MEDIAN 找出數值群組中間的數值，避免被極端值影響。", example: "=MEDIAN(A1:A10)" },
+        { question: "統計學中，想找出這組分數中「出現次數最多」的分數（眾數）。", options: ["MOST", "MAX", "MODE", "POPULAR"], answer: 2, explanation: "MODE 傳回出現頻率最高的數值。", example: "=MODE(A1:A10)" },
+        { question: "如果有一組數字：1, 2, 9, 9, 10。MODE 函數的結果是？", options: ["1", "9", "6.2", "10"], answer: 1, explanation: "MODE 找眾數（出現最多次的數），9 出現了兩次。", example: "=MODE(A1:A5)" },
+        { question: "RANK 函數如果不指定第三個參數，預設排名方式是？", options: ["遞增 (分數低第一名)", "遞減 (分數高第一名)", "隨機", "依輸入順序"], answer: 1, explanation: "RANK 預設是遞減排序 (Desc)，即數字越大排名越前。", example: "=RANK(A1, A1:A10)" },
+
+        // --- 邏輯判斷 (IF, AND, OR, NOT) ---
+        { question: "如果 A1>=60 顯示「及格」，否則顯示「不及格」。", options: ["CHECK", "IF", "THEN", "WHEN"], answer: 1, explanation: "IF(條件, 成立值, 不成立值)。", example: "=IF(A1>=60, \"及格\", \"不及格\")" },
+        { question: "判斷是否「兩科都及格」。條件：中文>50 且 英文>50。", options: ["OR", "IF", "AND", "BOTH"], answer: 2, explanation: "AND 在「所有」條件都為 TRUE 時才回傳 TRUE。", example: "=AND(A1>50, B1>50)" },
+        { question: "判斷是否「至少有一科及格」。條件：中文>50 或 英文>50。", options: ["AND", "OR", "IF", "MAYBE"], answer: 1, explanation: "OR 只要有「任何一個」條件為 TRUE 就回傳 TRUE。", example: "=OR(A1>50, B1>50)" },
+        { question: "將 TRUE 變成 FALSE，或將 FALSE 變成 TRUE。", options: ["SWAP", "IF", "NOT", "CHANGE"], answer: 2, explanation: "NOT 用於反轉邏輯值。", example: "=NOT(TRUE) // 結果為 FALSE" },
+        { question: "想根據年齡給予優惠：如果 Age<12 或 Age>60，顯示 \"半價\"，否則 \"原價\"。", options: ["AND", "OR", "IF+OR", "IF+AND"], answer: 2, explanation: "需要 IF 搭配 OR。如果 (小於12 或 大於60) 成立...", example: "=IF(OR(A1<12, A1>60), \"半價\", \"原價\")" },
+        { question: "檢查庫存：如果數量小於 5，顯示 \"補貨\"，否則顯示空白。", options: ["IF", "COUNTIF", "CHECK", "AND"], answer: 0, explanation: "IF 函數最適合這種二選一的情況。", example: "=IF(A2<5, \"補貨\", \"\")" },
+        { question: "只有當 A1 和 B1 都等於 \"Yes\" 時才顯示 \"Pass\"。", options: ["IF+OR", "IF+AND", "COUNTIF", "SUMIF"], answer: 1, explanation: "需要 IF 裡面包一個 AND。", example: "=IF(AND(A1=\"Yes\", B1=\"Yes\"), \"Pass\", \"\")" },
+
+        // --- 數值處理 (ROUND, INT, ABS, SQRT) ---
+        { question: "需要計算一個數值的「絕對值」（將負數變正數）。", options: ["ABS", "INT", "POS", "ROUND"], answer: 0, explanation: "ABS (Absolute) 回傳絕對值。", example: "=ABS(-15) // 結果 15" },
+        { question: "將 3.14159 四捨五入到「小數點後兩位」。", options: ["INT", "ROUND", "ROUNDUP", "FIXED"], answer: 1, explanation: "ROUND(數字, 位數) 用於四捨五入。", example: "=ROUND(3.14159, 2) // 3.14" },
+        { question: "只想保留數字的「整數部分」，無條件捨去小數（例 5.9 變 5）。", options: ["ROUND", "ABS", "INT", "FLOOR"], answer: 2, explanation: "INT 向下取整至最接近的整數。", example: "=INT(5.99) // 5" },
+        { question: "計算 144 的「平方根」。", options: ["SQRT", "SQUARE", "POWER", "ROOT"], answer: 0, explanation: "SQRT (Square Root) 計算平方根。", example: "=SQRT(144) // 12" },
+        { question: "如果要計算兩個地點的距離差 (A1 - B1)，但不希望出現負數。", options: ["IF", "INT", "ABS", "MIN"], answer: 2, explanation: "用 ABS 包住相減的公式，確保結果永遠是正數。", example: "=ABS(A1-B1)" },
+        { question: "想把全班平均分 85.6789 變成整數 86 (四捨五入)。", options: ["INT", "ROUND", "TRUNC", "ABS"], answer: 1, explanation: "ROUND 可以四捨五入；INT 會變成 85。", example: "=ROUND(85.6789, 0)" },
+        { question: "INT(-5.5) 的結果是多少？", options: ["-5", "-6", "-5.5", "5"], answer: 1, explanation: "INT 是「向下」取整，-5.5 向下是 -6。", example: "=INT(-5.5)" },
+
+        // --- 隨機數 (RAND) ---
+        { question: "要產生一個 0 到 1 之間的隨機小數。", options: ["RANDOM", "RAND", "RND", "CHANCE"], answer: 1, explanation: "RAND() 不需要參數，回傳 0~1 之間的隨機數。", example: "=RAND()" },
+        { question: "RAND() 函數每次重新計算試算表時，數值會...", options: ["保持不變", "自動改變", "變成 0", "變成 1"], answer: 1, explanation: "RAND 是易變函數，每次操作試算表都會重新產生新數字。", example: "=RAND()" },
+        { question: "想用 RAND 產生一個 0 到 10 之間的隨機數，公式是？", options: ["=RAND()+10", "=RAND()*10", "=RAND(10)", "=INT(10)"], answer: 1, explanation: "RAND() 產生 0~1，乘以 10 就變成 0~10。", example: "=RAND()*10" },
+
+        // --- 綜合應用 (組合技) ---
+        { question: "如果 A1 是負數，顯示 \"Error\"，否則計算 A1 的平方根。", options: ["IF+SQRT", "SQRT", "ABS", "IF"], answer: 0, explanation: "先用 IF 檢查是否小於0，避免 SQRT 出錯。", example: "=IF(A1<0, \"Error\", SQRT(A1))" },
+        { question: "要算出全班「及格人數」佔「總人數」的百分比。", options: ["COUNTIF / COUNTA", "SUM / COUNT", "AVERAGE", "RANK"], answer: 0, explanation: "先用 COUNTIF 算及格人數，再除以 COUNTA 算出的總人數。", example: "=COUNTIF(..)/COUNTA(..)" },
+        { question: "找出班上「缺考」(空格) 的同學比例。", options: ["COUNTBLANK / COUNTA", "COUNTIF / SUM", "AVERAGE", "MIN"], answer: 0, explanation: "空白格數量除以總人數。", example: "=COUNTBLANK(A:A)/COUNTA(A:A)" },
+        { question: "如果要隨機抽出一位同學 (1~30號)，可以用 INT 搭配哪個函數？", options: ["RAND", "ROUND", "ABS", "SQRT"], answer: 0, explanation: "INT(RAND()*30)+1 可以產生 1 到 30 的整數。", example: "=INT(RAND()*30)+1" }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let shuffledQuestions = [];
+
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const feedbackScreen = document.getElementById('feedback-screen');
+    const endScreen = document.getElementById('end-screen');
+    
+    const submitSection = document.getElementById('submit-section');
+    const leaderboardSection = document.getElementById('leaderboard-section');
+    const leaderboardContent = document.getElementById('leaderboard-content');
+
+    function startGame() {
+        currentQuestionIndex = 0;
+        score = 0;
+        
+        // --- 核心修改：隨機洗牌並只取前 10 題 ---
+        // 1. 複製題庫並隨機排序
+        const allQuestions = [...questionBank].sort(() => 0.5 - Math.random());
+        // 2. 切割出前 10 題 (如果題庫不夠 10 題則取全部)
+        shuffledQuestions = allQuestions.slice(0, 10);
+        // -------------------------------------
+        
+        startScreen.classList.add('hidden');
+        endScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        leaderboardSection.classList.add('hidden');
+        submitSection.classList.remove('hidden');
+        
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const qData = shuffledQuestions[currentQuestionIndex];
+        
+        // 進度條顯示
+        const totalQ = shuffledQuestions.length;
+        document.getElementById('progress').style.width = `${((currentQuestionIndex)/totalQ)*100}%`;
+        
+        // 顯示題目
+        document.getElementById('question').innerHTML = 
+            `<span style="font-size:0.8em; color:#666">第 ${currentQuestionIndex + 1}/${totalQ} 題</span><br>${qData.question}`;
+        
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        qData.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(idx);
+            container.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(idx) {
+        const qData = shuffledQuestions[currentQuestionIndex];
+        const isCorrect = idx === qData.answer;
+        if(isCorrect) score++;
+
+        quizScreen.classList.add('hidden');
+        feedbackScreen.classList.remove('hidden');
+        
+        const feedbackBox = document.getElementById('feedback-box');
+        const resultTitle = document.getElementById('result-title');
+        feedbackBox.className = 'feedback-container ' + (isCorrect ? 'correct' : 'wrong');
+        resultTitle.innerHTML = isCorrect ? '<span class="text-correct">✅ 答對了！</span>' : `<span class="text-wrong">❌ 答錯了！</span> 正確: <strong>${qData.options[qData.answer]}</strong>`;
+        
+        document.getElementById('explanation-text').innerText = qData.explanation;
+        document.getElementById('example-code').innerText = qData.example;
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        feedbackScreen.classList.add('hidden');
+        if (currentQuestionIndex < shuffledQuestions.length) {
+            quizScreen.classList.remove('hidden');
+            showQuestion();
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        endScreen.classList.remove('hidden');
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('total-questions').innerText = shuffledQuestions.length;
+    }
+
+    function submitScore() {
+        const name = document.getElementById('player-name').value.trim();
+        if (!name) { alert("請輸入名字！"); return; }
+        // 移除 URL 檢查，因為現在 URL 是寫死的正確網址
+        
+        const btn = document.querySelector('.btn-submit');
+        btn.disabled = true;
+        btn.innerText = "提交中...";
+
+        fetch(GAS_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, score: score })
+        }).then(() => {
+            loadLeaderboard();
+        }).catch(err => {
+            alert("提交失敗，請檢查網絡");
+            btn.disabled = false;
+        });
+    }
+
+    function loadLeaderboard() {
+        submitSection.classList.add('hidden');
+        leaderboardSection.classList.remove('hidden');
+        
+        fetch(GAS_URL)
+        .then(response => response.json())
+        .then(data => {
+            let html = `<table class="leaderboard-table"><tr><th>排名</th><th>名字</th><th>得分</th></tr>`;
+            data.forEach((row, index) => {
+                let rankClass = index === 0 ? 'rank-1' : (index === 1 ? 'rank-2' : (index === 2 ? 'rank-3' : ''));
+                let rankIcon = index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : index + 1));
+                html += `<tr><td class="${rankClass}">${rankIcon}</td><td class="${rankClass}">${row.name}</td><td>${row.score}</td></tr>`;
+            });
+            html += `</table>`;
+            leaderboardContent.innerHTML = html;
+        })
+        .catch(err => {
+            leaderboardContent.innerText = "無法載入排行榜";
+            console.error(err);
+        });
+    }
+</script>
+</body>
+</html>
