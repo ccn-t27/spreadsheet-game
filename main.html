@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT狗的函數補習班</title>
+    <!-- 引入 React 和 Tailwind CSS -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f0f9ff; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .animate-fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .flip-card-inner { transition: transform 0.6s; transform-style: preserve-3d; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- 完整資料庫 (23個函數) - SUMIF 更新為3參數版本 ---
+        const functionData = {
+            math: [
+                { name: "SUM", pronounce: "Sum", root: "Summary", icon: "💰", hack: "全部'森'埋一齊 (Sum)", desc: "加總", example: "=SUM(A1:A10)", res: "總和" },
+                { name: "SUMIF", pronounce: "Sum If", root: "Sum + If", icon: "🧐", hack: "填3格：查邊度, 查咩, 加邊度", desc: "條件加總 (通常有3個參數)", example: "=SUMIF(A1:A10, \"Peter\", B1:B10)", res: "Peter的總分" },
+                { name: "ABS", pronounce: "Abs", root: "Absolute", icon: "➕", hack: "充滿正能量 (變正數)", desc: "絕對值", example: "=ABS(-50)", res: "50" },
+                { name: "INT", pronounce: "Int", root: "Integer", icon: "🪓", hack: "直接斬腳趾 (捨去小數)", desc: "取整", example: "=INT(5.99)", res: "5" },
+                { name: "ROUND", pronounce: "Round", root: "Round", icon: "⭕", hack: "做人要圓滑 (四捨五入)", desc: "四捨五入", example: "=ROUND(5.99, 1)", res: "6.0" },
+                { name: "SQRT", pronounce: "Square Root", root: "Square Root", icon: "🌿", hack: "SQ=正方形 Root=根", desc: "平方根", example: "=SQRT(16)", res: "4" },
+                { name: "RAND", pronounce: "Rand", root: "Random", icon: "🎲", hack: "隨機抽獎", desc: "隨機數", example: "=RAND()", res: "0.238..." },
+            ],
+            logic: [
+                { name: "IF", pronounce: "If", root: "If", icon: "🤔", hack: "如果...就...否則... (3格)", desc: "條件判斷", example: "=IF(A1>=50, '及格', '肥佬')", res: "及格/肥佬" },
+                { name: "AND", pronounce: "And", root: "And", icon: "🤝", hack: "A 同埋 B (貪心，兩個都要)", desc: "而且", example: "=AND(中>50, 英>50)", res: "TRUE" },
+                { name: "OR", pronounce: "Or", root: "Or", icon: "🤷", hack: "A 或者 B (隨便，一個就得)", desc: "或者", example: "=OR(中>50, 英>50)", res: "TRUE" },
+                { name: "NOT", pronounce: "Not", root: "Not", icon: "🙅", hack: "唱反調 (黑變白)", desc: "相反", example: "=NOT(TRUE)", res: "FALSE" },
+            ],
+            stats: [
+                { name: "AVERAGE", pronounce: "Average", root: "Average", icon: "⚖️", hack: "Avg (平均分)", desc: "平均值", example: "=AVERAGE(A1:A30)", res: "平均分" },
+                { name: "COUNT", pronounce: "Count", root: "Count", icon: "🔢", hack: "靠 (Count) 手指數數字", desc: "數數字", example: "=COUNT(A1:A10)", res: "個數" },
+                { name: "COUNTA", pronounce: "Count A", root: "Count All", icon: "🔠", hack: "Count All (全部都數)", desc: "數非空值", example: "=COUNTA(A1:A10)", res: "個數" },
+                { name: "COUNTBLANK", pronounce: "Count Blank", root: "Count Blank", icon: "⬜", hack: "Blank 即係白卷 (空格)", desc: "數空格", example: "=COUNTBLANK(A1:A10)", res: "空格數" },
+                { name: "COUNTIF", pronounce: "Count If", root: "Count + If", icon: "👆", hack: "如果係...先好數 (2格)", desc: "條件計數", example: "=COUNTIF(A1:A10, \"M\")", res: "人數" },
+                { name: "MAX", pronounce: "Max", root: "Maximum", icon: "🏔️", hack: "Max 哥最強 (最大)", desc: "最大值", example: "=MAX(A1:A30)", res: "最大值" },
+                { name: "MIN", pronounce: "Min", root: "Minimum", icon: "🐜", hack: "Mini 弟迷你 (最小)", desc: "最小值", example: "=MIN(A1:A30)", res: "最小值" },
+                { name: "RANK", pronounce: "Rank", root: "Ranking", icon: "🏆", hack: "打機 Ranking (排名)", desc: "排名", example: "=RANK(A1, A$1:A$30)", res: "名次" },
+                { name: "MEDIAN", pronounce: "Median", root: "Median", icon: "🎯", hack: "Middle (坐中間位)", desc: "中位數", example: "=MEDIAN(A1:A10)", res: "中間值" },
+                { name: "MODE", pronounce: "Mode", root: "Mode", icon: "🔥", hack: "Most (出現最多次)", desc: "眾數", example: "=MODE(A1:A10)", res: "眾數" },
+                { name: "LARGE", pronounce: "Large", root: "Large", icon: "🥈", hack: "Large (大) -> 第 K 大", desc: "第K大值", example: "=LARGE(A1:A10, 2)", res: "第2大" },
+                { name: "SMALL", pronounce: "Small", root: "Small", icon: "🐢", hack: "Small (細) -> 第 K 細", desc: "第K小值", example: "=SMALL(A1:A10, 3)", res: "第3小" },
+            ]
+        };
+
+        const confusingPairs = [
+            {
+                title: "SUMIF vs COUNTIF",
+                keyword: "加錢 vs 數人",
+                desc: "記住：SUMIF 通常填 3 格，COUNTIF 填 2 格。",
+                left: { name: "SUMIF", icon: "💵", meaning: "Sum (加總) + If", key: "查邊度, 查咩, 加邊度 (3格)", ex: "在A欄查'Peter'，加B欄的分數" },
+                right: { name: "COUNTIF", icon: "👆", meaning: "Count (計數) + If", key: "查邊度, 查咩 (2格)", ex: "在A欄查有幾個'Peter' (不涉及B欄)" }
+            },
+            {
+                title: "COUNT vs COUNTA",
+                keyword: "數字 vs 全部",
+                desc: "如果格子裡是文字 (如 '缺席')，小心用錯！",
+                left: { name: "COUNT", icon: "🔢", meaning: "只數數字", key: "1, 2, 3...", ex: "只計算有填【分數】的人" },
+                right: { name: "COUNTA", icon: "🔠", meaning: "Count All (全部)", key: "數字 + 文字 (A=All)", ex: "計算【有出席】(有填任何野) 的人" }
+            },
+            {
+                title: "INT vs ROUND",
+                keyword: "斬腳 vs 四捨五入",
+                desc: "都係變整數，但手法不同。",
+                left: { name: "INT", icon: "🪓", meaning: "Integer (取整)", key: "無條件捨去 (斬腳趾)", ex: "5.9 ➡️ 5" },
+                right: { name: "ROUND", icon: "⭕", meaning: "Round (圓滑)", key: "四捨五入 (睇下一位)", ex: "5.9 ➡️ 6" }
+            }
+        ];
+
+        // --- 組件: IT狗 ---
+        const Mascot = ({ emotion, text }) => {
+            const getEmoji = () => {
+                switch(emotion) {
+                    case 'happy': return '🐶';
+                    case 'smart': return '🤓';
+                    case 'warn': return '⚠️';
+                    default: return '🐕';
+                }
+            };
+            return (
+                <div className="flex items-start bg-white p-4 rounded-xl shadow-lg border-2 border-blue-500 mb-6 relative animate-fade-in">
+                    <div className="text-5xl mr-4">{getEmoji()}</div>
+                    <div className="speech-bubble bg-blue-100 p-3 rounded-lg relative w-full">
+                        <p className="font-bold text-blue-800 text-lg">IT 狗旺財：</p>
+                        <p className="text-gray-700">{text}</p>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- 組件: 函數卡片 (更新發音邏輯) ---
+        const FunctionCard = ({ item }) => {
+            const [flipped, setFlipped] = useState(false);
+
+            const speak = (e, text) => {
+                e.stopPropagation();
+                // 優先使用 pronounce 欄位，如果沒有則使用 name
+                const textToSpeak = item.pronounce || text;
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.8; // 稍微慢一點
+                window.speechSynthesis.speak(utterance);
+            };
+
+            return (
+                <div 
+                    className="bg-white rounded-xl shadow-md card-hover border border-gray-100 cursor-pointer h-full relative overflow-hidden group"
+                    onClick={() => setFlipped(!flipped)}
+                >
+                    {/* 正面 */}
+                    <div className={`p-5 h-full flex flex-col justify-between ${flipped ? 'hidden' : 'block'}`}>
+                        <div>
+                            <div className="flex justify-between items-center mb-1">
+                                <h3 className="text-2xl font-bold text-blue-600">{item.name}</h3>
+                                <div className="flex items-center gap-2">
+                                    <button 
+                                        onClick={(e) => speak(e, item.name)}
+                                        className="text-gray-400 hover:text-blue-500 transition-colors p-1 rounded-full hover:bg-blue-50"
+                                        title="發音"
+                                    >
+                                        🔊
+                                    </button>
+                                    <span className="text-3xl">{item.icon}</span>
+                                </div>
+                            </div>
+                            
+                            <div className="mb-3">
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">英文原意</span>
+                                <p className="text-sm font-medium text-gray-600 font-mono bg-gray-50 px-2 py-1 rounded border border-gray-200 inline-block mt-1">
+                                    {item.root}
+                                </p>
+                            </div>
+
+                            <p className="text-sm text-gray-500 mb-2">{item.desc}</p>
+                        </div>
+                        
+                        <div className="bg-yellow-50 p-2 rounded border border-yellow-100 mt-2">
+                            <span className="text-[10px] font-bold text-yellow-600 block">🧠 記憶口訣：</span>
+                            <p className="text-sm text-yellow-800 font-bold">{item.hack}</p>
+                        </div>
+                        
+                        <p className="text-xs text-blue-400 mt-2 text-center animate-pulse">👆 點擊看例子</p>
+                    </div>
+
+                    {/* 背面 (翻轉後) */}
+                    <div className={`p-5 h-full bg-blue-50 flex flex-col justify-center ${flipped ? 'block' : 'hidden'} animate-fade-in`}>
+                         <div className="flex justify-between items-center mb-2">
+                            <h3 className="text-xl font-bold text-blue-600">{item.name}</h3>
+                            <button 
+                                onClick={(e) => speak(e, item.name)}
+                                className="text-blue-400 hover:text-blue-600"
+                            >
+                                🔊
+                            </button>
+                        </div>
+                        <div className="bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
+                            <p className="font-bold text-green-700 mb-1 text-xs">💡 例子：</p>
+                            <code className="block bg-gray-800 text-green-400 p-2 rounded text-xs mb-1 break-all">{item.example}</code>
+                            <p className="text-xs text-gray-600 mt-2 border-t pt-1">結果：<span className="font-bold text-gray-800">{item.res}</span></p>
+                        </div>
+                        <button className="mt-4 text-xs text-blue-500 underline text-center">返回記憶卡</button>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- 組件: 對決卡片 (易混淆) ---
+        const VersusCard = ({ pair }) => {
+            return (
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border-4 border-red-100 mb-8 transform transition hover:scale-[1.01]">
+                    <div className="bg-red-500 text-white p-3 text-center font-bold text-xl">
+                        🔥 {pair.title} 🔥
+                    </div>
+                    <div className="p-4 text-center bg-red-50 border-b border-red-100">
+                        <p className="text-red-800 font-bold mb-1">{pair.keyword}</p>
+                        <p className="text-sm text-gray-600">{pair.desc}</p>
+                    </div>
+                    <div className="grid grid-cols-2 divide-x divide-gray-200">
+                        {/* 左邊選手 */}
+                        <div className="p-4 bg-blue-50 hover:bg-blue-100 transition-colors">
+                            <div className="text-center mb-2">
+                                <span className="text-4xl block mb-2">{pair.left.icon}</span>
+                                <h4 className="text-xl font-bold text-blue-700">{pair.left.name}</h4>
+                            </div>
+                            <div className="space-y-2 text-sm">
+                                <p className="bg-white p-2 rounded shadow-sm">
+                                    <span className="font-bold text-gray-500 block text-xs">意思：</span>
+                                    {pair.left.meaning}
+                                </p>
+                                <p className="bg-white p-2 rounded shadow-sm border-l-4 border-blue-500">
+                                    <span className="font-bold text-gray-500 block text-xs">記憶法：</span>
+                                    {pair.left.key}
+                                </p>
+                                <p className="text-gray-600 italic mt-2 text-xs">"{pair.left.ex}"</p>
+                            </div>
+                        </div>
+
+                        {/* 右邊選手 */}
+                        <div className="p-4 bg-orange-50 hover:bg-orange-100 transition-colors">
+                            <div className="text-center mb-2">
+                                <span className="text-4xl block mb-2">{pair.right.icon}</span>
+                                <h4 className="text-xl font-bold text-orange-700">{pair.right.name}</h4>
+                            </div>
+                            <div className="space-y-2 text-sm">
+                                <p className="bg-white p-2 rounded shadow-sm">
+                                    <span className="font-bold text-gray-500 block text-xs">意思：</span>
+                                    {pair.right.meaning}
+                                </p>
+                                <p className="bg-white p-2 rounded shadow-sm border-l-4 border-orange-500">
+                                    <span className="font-bold text-gray-500 block text-xs">記憶法：</span>
+                                    {pair.right.key}
+                                </p>
+                                <p className="text-gray-600 italic mt-2 text-xs">"{pair.right.ex}"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- 主程式 ---
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('math');
+
+            const renderContent = () => {
+                if (activeTab === 'danger') {
+                    return (
+                        <div className="animate-fade-in pb-20">
+                            <Mascot 
+                                emotion="warn" 
+                                text="汪！這裡是「易混淆特區」！認住 D 關鍵字 (Keyword)，見到 'Total' 就諗 Sum，見到 'How many' 就諗 Count！" 
+                            />
+                            {confusingPairs.map((pair, idx) => (
+                                <VersusCard key={idx} pair={pair} />
+                            ))}
+                        </div>
+                    );
+                }
+
+                let data = [];
+                let introText = "";
+
+                if (activeTab === 'math') {
+                    data = functionData.math;
+                    introText = `數學派：撳個喇叭仔 🔊 聽下個字點讀！記住「森」埋一齊就係 SUM，圓滑做人就係 ROUND！`;
+                } else if (activeTab === 'logic') {
+                    data = functionData.logic;
+                    introText = `邏輯派：IF 係大佬，記住「如果...就...」。拆開個英文字黎記，好簡單！`;
+                } else if (activeTab === 'stats') {
+                    data = functionData.stats;
+                    introText = `統計派：COUNT 家族最煩，記住加左 A 就係 All (全部數)，加左 Blank 就係白卷 (空格)！`;
+                }
+
+                return (
+                    <div className="pb-20">
+                        <Mascot emotion="happy" text={introText} />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {data.map((item, idx) => (
+                                <FunctionCard key={idx} item={item} />
+                            ))}
+                        </div>
+                    </div>
+                );
+            };
+
+            return (
+                <div className="max-w-md mx-auto min-h-screen bg-gray-50 shadow-2xl overflow-hidden relative">
+                    {/* Header */}
+                    <div className="bg-blue-600 p-6 text-white rounded-b-3xl shadow-lg relative z-10">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h1 className="text-2xl font-bold">IT狗的函數補習班</h1>
+                                <p className="text-blue-200 text-sm">英文差？聽聲、拆字、記口訣！🐶</p>
+                            </div>
+                            <div className="text-4xl bg-white rounded-full p-1 shadow-inner">🐕</div>
+                        </div>
+                    </div>
+
+                    {/* Navigation */}
+                    <div className="flex justify-around p-4 bg-white shadow-sm sticky top-0 z-20 overflow-x-auto">
+                        {[
+                            { id: 'math', label: '數學派', icon: '🔢', count: functionData.math.length },
+                            { id: 'logic', label: '邏輯派', icon: '🧠', count: functionData.logic.length },
+                            { id: 'stats', label: '統計派', icon: '📊', count: functionData.stats.length },
+                            { id: 'danger', label: '易混淆', icon: '🚨', count: 3 }
+                        ].map(tab => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`flex flex-col items-center min-w-[65px] p-2 rounded-xl transition-all ${
+                                    activeTab === tab.id 
+                                    ? (tab.id === 'danger' ? 'bg-red-100 text-red-600 font-bold transform scale-110 shadow-md' : 'bg-blue-100 text-blue-600 font-bold transform scale-110 shadow-md') 
+                                    : 'text-gray-400 hover:bg-gray-100'
+                                }`}
+                            >
+                                <span className="text-xl mb-1">{tab.icon}</span>
+                                <span className="text-xs">{tab.label}</span>
+                                <span className="text-[10px] bg-gray-200 px-1.5 rounded-full mt-1 text-gray-500">{tab.count}個</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Content Area */}
+                    <div className="p-4 min-h-[500px]">
+                        {renderContent()}
+                    </div>
+
+                    {/* Floating Action Button (Go to Quiz) */}
+                    <div className="fixed bottom-6 right-6 z-50">
+                         <a href="https://ccn-t27.github.io/spreadsheet-game/excel_game.html" target="_blank" className="flex items-center gap-2 bg-yellow-400 text-yellow-900 px-5 py-3 rounded-full font-bold shadow-lg hover:bg-yellow-300 transition-transform hover:scale-105 animate-bounce border-2 border-yellow-200">
+                            <span>🎮 去測驗！</span>
+                        </a>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
